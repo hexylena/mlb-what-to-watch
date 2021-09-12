@@ -32,6 +32,17 @@ Alternatively you can provide a specific date:
 $ python what2watch.py --date 2021-04-01
 ```
 
+Providing the `--json` flag returns machine readable data:
+
+```
+$ python what2watch.py --date 2021-09-11 --json
+[
+  {"home_abbr": "CHC", "away_abbr": "SFG", "home_name": "Chicago Cubs", "away_name": "San Francisco Giants", "time": "1:20 p.m. Local", "tags": ["high-scoring", "big-inning"]},
+  {"home_abbr": "OAK", "away_abbr": "TEX", "home_name": "Oakland Athletics", "away_name": "Texas Rangers", "time": "1:07 p.m. Local", "tags": ["big-inning", "comeback"]},
+  ...
+]
+```
+
 ## Tags
 
 Tag                   | Metric

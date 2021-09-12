@@ -15,7 +15,6 @@ def getBoxscore(then):
 
     data = []
     for key in games_then.games.keys():
-        print(key)
         for game in games_then.games[key]:
             # print(game['home_abbr'], game['away_abbr'], game['boxscore'])
             box = Boxscore(game["boxscore"])
@@ -129,6 +128,11 @@ if __name__ == "__main__":
         "--date",
         help="Must be ISO formatted date, e.g. 2021-12-31, defaults to yesterday",
     )
+    parser.add_argument(
+        "--json",
+        action='store_true',
+        help='Return output in JSON'
+    )
     args = parser.parse_args()
 
     if args.date:
@@ -138,11 +142,13 @@ if __name__ == "__main__":
         then = datetime.today().date() - timedelta(days=1)
 
     data = getBoxscore(then)
-    results = []
     for d in data:
-        # print(home, away)
-        where = f"{d['away_name']:>22s} @ {d['home_name']:<22s}"
-        results.append((where, tags(d['box'])))
+        d['tags'] = tags(d['box'])
+        del d['box']
 
-    for (where, game_tags) in sorted(results, key=lambda x: -len(x[1])):
-        print(f"{where} {', '.join(game_tags)}")
+    if args.json:
+        print(json.dumps(data))
+    else:
+        for d in sorted(data, key=lambda x: -len(x['tags'])):
+            where = f"{d['away_name']:>22s} @ {d['home_name']:<22s}"
+            print(f"{where} {', '.join(d['tags'])}")
