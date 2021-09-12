@@ -2,7 +2,7 @@
 
 **Spoiler-free tagging of old MLB games to guide you in what's fun to watch**
 
-For folx in the UTC±2 TZ, MLB games are generally inconveniently late, and you often end up watching them the next day. Maybe it's a good day and your favourite team are on a winning stream, maybe they're travelling today and you just want to watch A game, ANY game, something fun!
+For folx in the UTC±2 TZ, MLB games are generally inconveniently late, and you often end up watching them the next day. Maybe it's a good day and the Jays are on a winning streak, maybe they're travelling today and you just want to watch A game, ANY game, something fun!
 
 This repo provides a script to tag games based on which ones might be interesting to watch, depending on your mood. By default it'll fetch the box scores for yesterday and tag them based on several criteria in a way that *should* be spoiler free.
 
