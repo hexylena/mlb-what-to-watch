@@ -6,6 +6,8 @@ import argparse
 
 
 def getBoxscore(then):
+    if not os.path.exists('data'):
+        os.makedirs('data')
     fn = f"data/{then.isoformat()}.json"
     if os.path.exists(fn):
         with open(fn, "r") as handle:
