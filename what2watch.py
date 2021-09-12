@@ -129,6 +129,11 @@ if __name__ == "__main__":
         help="Must be ISO formatted date, e.g. 2021-12-31, defaults to yesterday",
     )
     parser.add_argument(
+        "--html",
+        action='store_true',
+        help='Return output as HTML that could be sent in an email'
+    )
+    parser.add_argument(
         "--json",
         action='store_true',
         help='Return output in JSON'
@@ -148,6 +153,22 @@ if __name__ == "__main__":
 
     if args.json:
         print(json.dumps(data))
+    elif args.html:
+        print("A daily digest of what's worth your time<br /><br />")
+        games = sorted(data, key=lambda x: -len(x['tags']))
+        print("<b>Go on ball, get outta here ⚾️</b><br />")
+        print("<table>")
+        for i, d in enumerate([x for x in games if len(x['tags']) > 0]):
+            bkg = "#ffffff" if i % 2 == 0 else "#f6f8fa"
+            print(f"""<tr style="background-color: {bkg}"><td style="padding: 6px 13px; text-align: right; border: 1px solid #d0d7de"><b>{d['away_name']}</b></td><td style="border: 1px solid #d0d7de">@</td><td style="padding: 6px 13px;border: 1px solid #d0d7de"><b>{d['home_name']}</b></td> <td style="padding: 6px 13px;border: 1px solid #d0d7de">{d['time']}</td> <td style="padding: 6px 13px;border: 1px solid #d0d7de">{', '.join(d['tags'])}</td></tr>""")
+        print("</table>")
+
+        print("<br/><b>Probably not 👎</b><br />")
+        for d in [x for x in games if len(x['tags']) == 0]:
+            where = f"{d['away_name']:>22s} @ {d['home_name']:<22s}"
+            print(f"{where} ({d['time']})<br />")
+
+        print(f"""<br/><br/><a href="https://github.com/hexylena/mlb-what-to-watch">hexylena/mlb-what-to-watch</a>""")
     else:
         for d in sorted(data, key=lambda x: -len(x['tags'])):
             where = f"{d['away_name']:>22s} @ {d['home_name']:<22s}"
