@@ -29,8 +29,9 @@ jobs:
             git add data/
             git commit -a -m 'Automated commit'
             git push
-            aws ses send-email --destination 'ToAddresses=helena.rasche@gmail.com,zazkia@gmail.com' --from helena@galaxians.org --subject 'MLB: What2Watch' --html "$(python what2watch.py --html)"
+            aws ses send-email --destination "ToAddresses=${DISTRIBUTION_LIST}" --from helena@galaxians.org --subject 'MLB: What2Watch' --html "$(python what2watch.py --html)"
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_IAM_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_IAM_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.SES_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SES_ACCESS_SECRET }}
           AWS_DEFAULT_REGION: eu-central-1
+          DISTRIBUTION_LIST: ${{ secrets.DISTRIBUTION_LIST }}
