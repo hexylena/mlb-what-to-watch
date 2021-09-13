@@ -143,6 +143,38 @@ def color4tag(tag):
     return TAG_COLORS[tag]
 
 
+def renderPlain(data):
+    out = ""
+    for d in sorted(data, key=lambda x: -len(x['tags'])):
+        where = f"{d['away_name']:>22s} @ {d['home_name']:<22s}"
+        out += f"{where} {', '.join(d['tags'])}\n"
+    return out
+
+def renderHtml(data, standalone, date):
+    from jinja2 import Environment, FileSystemLoader, select_autoescape
+    env = Environment(
+        loader=FileSystemLoader("templates"),
+        autoescape=select_autoescape()
+    )
+    template = env.get_template("mlb.html")
+
+    games = sorted(data, key=lambda x: -len(x['tags']))
+    good_games = [x for x in games if len(x['tags']) > 0]
+    boring_games = [x for x in games if len(x['tags']) == 0]
+    seen_tags = []
+    for x in good_games:
+        seen_tags.extend(x['tags'])
+
+    with open('.git/refs/heads/main', 'r') as handle:
+        git_commit = handle.read().strip()[0:12]
+
+    kw = dict(good=good_games, bad=boring_games, tag_defs=TAG_DEFS,
+                color=color4tag, git_commit=git_commit,
+                standalone=standalone, date=date)
+
+    return template.render(**kw)
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="What to watch: MLB")
@@ -154,6 +186,11 @@ if __name__ == "__main__":
         "--html",
         action='store_true',
         help='Return output as HTML that could be sent in an email'
+    )
+    parser.add_argument(
+        "--sesv2",
+        action='store_true',
+        help='Return output in sesv2 json'
     )
     parser.add_argument(
         "--github-pages",
@@ -181,39 +218,63 @@ if __name__ == "__main__":
     if args.json:
         print(json.dumps(data))
     elif args.html:
-        from jinja2 import Environment, FileSystemLoader, select_autoescape
-        env = Environment(
-            loader=FileSystemLoader("templates"),
-            autoescape=select_autoescape()
-        )
-        template = env.get_template("mlb.html")
-
-        games = sorted(data, key=lambda x: -len(x['tags']))
-        good_games = [x for x in games if len(x['tags']) > 0]
-        boring_games = [x for x in games if len(x['tags']) == 0]
-        seen_tags = []
-        for x in good_games:
-            seen_tags.extend(x['tags'])
-
-        with open('.git/refs/heads/main', 'r') as handle:
-            git_commit = handle.read().strip()[0:12]
-
-        kw = dict(good=good_games, bad=boring_games, tag_defs=TAG_DEFS,
-                  color=color4tag, git_commit=git_commit,
-                  standalone=False, date=then)
-
         if args.github_pages:
-            kw['standalone'] = True
             with open(f'docs/{then.isoformat()}.html', 'w') as handle:
-                handle.write(template.render(**kw))
+                handle.write(renderHtml(data, True, then))
 
             with open(f'docs/index.md', 'w') as handle:
                 handle.write("# MLB: What to Watch\n\n")
                 for f in sorted(glob.glob("docs/*.html")):
                     handle.write(f"- [{f[5:-5]}]({f[5:]})\n")
         else:
-            print(template.render(**kw))
+            print(renderHtml(data, False, then))
+    elif args.sesv2:
+        # import boto3
+        # from botocore.exceptions import ClientError
+        SENDER = "Galaxians Sports <mlb@galaxians.org>"
+        AWS_REGION = "eu-central-1"
+        SUBJECT = "MLB: What to Watch"
+        CHARSET = "UTF-8"
+        # client = boto3.client('ses',region_name=AWS_REGION)
+        # # Try to send the email.
+        # try:
+            # #Provide the contents of the email.
+            # response = client.send_email(
+        z = dict(
+            ListManagementOptions={
+                'ContactListName': 'HelkiaContactList',
+                'TopicName': 'MLB-W2W'
+            },
+            Destination={
+                'ToAddresses': ["helena.rasche+blah@gmail.com"]
+            },
+            Content={
+                'Simple': {
+                    'Body': {
+                        'Html': {
+                            'Charset': CHARSET,
+                            'Data': renderHtml(data, False, then),
+                        },
+                        'Text': {
+                            'Charset': CHARSET,
+                            'Data': renderPlain(data),
+                        },
+                    },
+                    'Subject': {
+                        'Charset': CHARSET,
+                        'Data': SUBJECT,
+                    },
+                }
+            },
+            FromEmailAddress=SENDER,
+        )
+        print(json.dumps(z))
+        # Display an error if something goes wrong.
+        # except ClientError as e:
+            # print(e.response['Error']['Message'])
+        # else:
+            # print("Email sent! Message ID:"),
+            # print(response['MessageId'])
+
     else:
-        for d in sorted(data, key=lambda x: -len(x['tags'])):
-            where = f"{d['away_name']:>22s} @ {d['home_name']:<22s}"
-            print(f"{where} {', '.join(d['tags'])}")
+        print(renderPlain(data))

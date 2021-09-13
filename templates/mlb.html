@@ -66,6 +66,9 @@ Nothing super exciting happened today <br />
 </dl>
 
 <br/><br/>
+{% if not standalone %}
+<a href="{{ '{{amazonSESUnsubscribeUrl}}' }}">Unsubscribe Here</a>
+{% endif %}
 <div style="font-size: 90%; color: #555">Want to run it yourself? Have a suggestion? <a href="https://github.com/hexylena/mlb-what-to-watch">hexylena/mlb-what-to-watch@{{ git_commit }}</a> (AGPL-3.0)</div>
 </div>
 {%- if standalone -%}
