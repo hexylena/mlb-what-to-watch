@@ -1,4 +1,5 @@
 import json
+import glob
 import random
 import os
 from datetime import datetime, timedelta
@@ -155,6 +156,11 @@ if __name__ == "__main__":
         help='Return output as HTML that could be sent in an email'
     )
     parser.add_argument(
+        "--github-pages",
+        action='store_true',
+        help='Make the HTML report standalone (head/body/etc.) and store it in docs'
+    )
+    parser.add_argument(
         "--json",
         action='store_true',
         help='Return output in JSON'
@@ -192,7 +198,21 @@ if __name__ == "__main__":
         with open('.git/refs/heads/main', 'r') as handle:
             git_commit = handle.read().strip()[0:12]
 
-        print(template.render(good=good_games, bad=boring_games, tag_defs=TAG_DEFS, color=color4tag, git_commit=git_commit))
+        kw = dict(good=good_games, bad=boring_games, tag_defs=TAG_DEFS,
+                  color=color4tag, git_commit=git_commit,
+                  standalone=False, date=then)
+
+        if args.github_pages:
+            kw['standalone'] = True
+            with open(f'docs/{then.isoformat()}.html', 'w') as handle:
+                handle.write(template.render(**kw))
+
+            with open(f'docs/index.md', 'w') as handle:
+                handle.write("# MLB: What to Watch\n\n")
+                for f in sorted(glob.glob("docs/*.html")):
+                    handle.write(f"- [{f[5:-5]}]({f[5:]})\n")
+        else:
+            print(template.render(**kw))
     else:
         for d in sorted(data, key=lambda x: -len(x['tags'])):
             where = f"{d['away_name']:>22s} @ {d['home_name']:<22s}"

@@ -1,3 +1,16 @@
+{%- if standalone -%}
+<!DOCTYPE html>
+<head>
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:title" content="MLB: What to Watch for {{ date.isoformat() }}">
+	<meta property="og:description" content="Lots of good picks today: {% for game in good %}{{ game.away_abbr }}@{{ game.home_abbr }}|{% endfor %}">
+	<meta property="og:locale" content="en-US">
+</head>
+<body>
+	<div style="max-width: 1140px; margin-left: auto; margin-right: auto">
+{% endif %}
+
 <div style='font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif'>
 A daily digest of what's worth your time<br /><br />
 <b>Go on ball, get outta here ⚾️</b><br />
@@ -55,3 +68,6 @@ Nothing super exciting happened today <br />
 <br/><br/>
 <div style="font-size: 90%; color: #555">Want to run it yourself? Have a suggestion? <a href="https://github.com/hexylena/mlb-what-to-watch">hexylena/mlb-what-to-watch@{{ git_commit }}</a> (AGPL-3.0)</div>
 </div>
+{%- if standalone -%}
+</body>
+{% endif %}
