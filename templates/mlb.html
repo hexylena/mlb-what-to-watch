@@ -1,0 +1,57 @@
+<div style='font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif'>
+A daily digest of what's worth your time<br /><br />
+<b>Go on ball, get outta here ⚾️</b><br />
+
+{% set good_len = good | length %}
+{% if good_len > 0 %}
+<table style="border-spacing: 0px">
+{% for game in good %}
+<tr style="background-color: {% if loop.index % 2 == 1 %}#fff{% else %}#eee{% endif %}">
+	<td style=" text-align: right; padding: 6px 7px; border-top: 1px solid #d0d7de;">
+		<b>{{ game.away_name }}</b>
+	</td>
+	<td style="padding: 6px 0px; border-top: 1px solid #d0d7de;">@</td>
+	<td style="padding: 6px 7px; border-top: 1px solid #d0d7de;">
+		<b>{{ game.home_name }}</b>
+	</td>
+	<td style="padding: 6px 13px; border-top: 1px solid #d0d7de;">{{ game.time }}</td>
+	<td style="padding: 6px 13px; border-top: 1px solid #d0d7de;">
+		{%- for tag in game.tags -%}
+			<span style="border-radius: 2em; background-color: {{ color(tag) }}; padding: 0.2em 0.6em;">{{ tag }}</span>
+		{%- endfor -%}
+	</td>
+</tr>
+{% endfor %}
+</table>
+{% else %}
+Nothing super exciting happened today <br />
+{% endif %}
+
+
+
+{% set bad_len = bad | length %}
+{% if bad_len > 0 %}
+<br/><b>Probably not 😴</b><br />
+<table>
+{% for game in bad %}
+<tr>
+	<td style="text-align: right">{{ game.away_name }}</td>
+	<td>@</td>
+	<td>{{ game.home_name }}</td>
+	<td>({{ game['time'] }})</td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+
+<br/><b>What do the tags mean?</b><br />
+<dl>
+{% for tag in tag_defs %}
+	<dt><span style="border-radius: 2em; background-color: {{ color(tag) }}; padding: 0.2em 0.6em;">{{ tag }}</span></dt>
+	<dd>{{ tag_defs[tag] }}</dd>
+{% endfor %}
+</dl>
+
+<br/><br/>
+<div style="font-size: 90%; color: #555">Want to run it yourself? Have a suggestion? <a href="https://github.com/hexylena/mlb-what-to-watch">hexylena/mlb-what-to-watch@{{ git_commit }}</a> (AGPL-3.0)</div>
+</div>

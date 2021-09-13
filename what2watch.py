@@ -1,9 +1,27 @@
 import json
+import random
 import os
 from datetime import datetime, timedelta
 from sportsipy.mlb.boxscore import Boxscores, Boxscore
 import argparse
+import itertools
 
+
+TAG_DEFS = {
+    'pitchers-duel': 'Both of the teams scored ≤2 runs.',
+    'high-scoring': 'Either the combined run count was over 15, or at least one side was over 9.',
+    'big-inning': 'More than 5 runs in a single inning',
+    'comeback': 'After training by ≥4 runs, a team comes back to within 1 run or surpasses.',
+    'extra-innings': '>9 innings.',
+    'extra-extra-innings': '≥13 innings.',
+    'flip-flop': 'The lead changes more than 3 times.'
+}
+
+TAG_COLORS = {
+    k: f'#{c[0]}{c[0]}{c[1]}{c[1]}{c[2]}{c[2]}'
+    for k, c
+    in zip(sorted(TAG_DEFS.keys()), itertools.permutations('FCAF', 3))
+}
 
 def getBoxscore(then):
     if not os.path.exists('data'):
@@ -108,19 +126,20 @@ def tags(box):
         elif cur_away > cur_home:
             if len(leads) == 0 or leads[-1] != "away":
                 leads.append("away")
-
-    # Extra innings
-    if max(len(home), len(away)) > 9:
-        t.append('extra-innings')
-
-    if max(len(home), len(away)) >= 13:
-        t.append('extra-extra-innings')
-
     if len(leads) > 3:
         t.append("flip-flop")
 
+    # Extra innings
+    if max(len(home), len(away)) >= 13:
+        t.append('extra-extra-innings')
+    elif max(len(home), len(away)) > 9:
+        t.append('extra-innings')
+
     return t
 
+
+def color4tag(tag):
+    return TAG_COLORS[tag]
 
 
 if __name__ == "__main__":
@@ -156,21 +175,24 @@ if __name__ == "__main__":
     if args.json:
         print(json.dumps(data))
     elif args.html:
-        print("A daily digest of what's worth your time<br /><br />")
+        from jinja2 import Environment, FileSystemLoader, select_autoescape
+        env = Environment(
+            loader=FileSystemLoader("templates"),
+            autoescape=select_autoescape()
+        )
+        template = env.get_template("mlb.html")
+
         games = sorted(data, key=lambda x: -len(x['tags']))
-        print("<b>Go on ball, get outta here ⚾️</b><br />")
-        print("<table>")
-        for i, d in enumerate([x for x in games if len(x['tags']) > 0]):
-            bkg = "#ffffff" if i % 2 == 0 else "#f6f8fa"
-            print(f"""<tr style="background-color: {bkg}"><td style="padding: 6px 13px; text-align: right; border: 1px solid #d0d7de"><b>{d['away_name']}</b></td><td style="border: 1px solid #d0d7de">@</td><td style="padding: 6px 13px;border: 1px solid #d0d7de"><b>{d['home_name']}</b></td> <td style="padding: 6px 13px;border: 1px solid #d0d7de">{d['time']}</td> <td style="padding: 6px 13px;border: 1px solid #d0d7de">{', '.join(d['tags'])}</td></tr>""")
-        print("</table>")
+        good_games = [x for x in games if len(x['tags']) > 0]
+        boring_games = [x for x in games if len(x['tags']) == 0]
+        seen_tags = []
+        for x in good_games:
+            seen_tags.extend(x['tags'])
 
-        print("<br/><b>Probably not 👎</b><br />")
-        for d in [x for x in games if len(x['tags']) == 0]:
-            where = f"{d['away_name']:>22s} @ {d['home_name']:<22s}"
-            print(f"{where} ({d['time']})<br />")
+        with open('.git/refs/heads/main', 'r') as handle:
+            git_commit = handle.read().strip()[0:12]
 
-        print(f"""<br/><br/><a href="https://github.com/hexylena/mlb-what-to-watch">hexylena/mlb-what-to-watch</a>""")
+        print(template.render(good=good_games, bad=boring_games, tag_defs=TAG_DEFS, color=color4tag, git_commit=git_commit))
     else:
         for d in sorted(data, key=lambda x: -len(x['tags'])):
             where = f"{d['away_name']:>22s} @ {d['home_name']:<22s}"
