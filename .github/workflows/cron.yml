@@ -1,4 +1,4 @@
-name: Notify regarding games
+name: Daily Game Notifications
 
 on:
   schedule:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  runner-job:
+  process-data:
     runs-on: ubuntu-20.04
     steps:
       # Shallow should be fine for video
@@ -23,14 +23,22 @@ jobs:
         run: |
             pip install -r requirements.txt
             pip install awscli
-      - name: Run
+
+      - name: Fetch Data
         run: |
             python what2watch.py
+
+      - name: Commit
+        run: |
             git config --global user.email "bot@hexylena.github.io"
             git config --global user.name "Github Actions Bot"
             git add data/
             git commit -a -m 'Automated commit'
             git push
+        continue-on-error: true
+
+      - name: Email
+        run: |
             aws ses send-email --destination "ToAddresses=${DISTRIBUTION_LIST}" --from helena@galaxians.org --subject 'MLB: What2Watch' --html "$(python what2watch.py --html)"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.SES_ACCESS_KEY }}
