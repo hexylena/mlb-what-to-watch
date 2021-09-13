@@ -26,6 +26,8 @@ jobs:
       - name: Run
         run: |
             python what2watch.py
+            git config --global user.email "bot@hexylena.github.io"
+            git config --global user.name "Github Actions Bot"
             git add data/
             git commit -a -m 'Automated commit'
             git push
