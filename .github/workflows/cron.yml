@@ -35,12 +35,14 @@ jobs:
       - name: Fetch Data
         run: |
             python what2watch.py
+            python what2watch.py --html --github-pages
 
       - name: Commit
         run: |
             git config --global user.email "bot@hexylena.github.io"
             git config --global user.name "Github Actions Bot"
             git add data/
+            git add docs/
             git commit -a -m 'Automated commit'
             git push
         continue-on-error: true
