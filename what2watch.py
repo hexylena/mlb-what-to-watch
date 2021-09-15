@@ -36,6 +36,7 @@ def getBoxscore(then):
 
     data = []
     for key in games_then.games.keys():
+        print(key)
         for game in games_then.games[key]:
             # print(game['home_abbr'], game['away_abbr'], game['boxscore'])
             box = Boxscore(game["boxscore"])
@@ -209,6 +210,8 @@ if __name__ == "__main__":
     else:
         # yesterday by default
         then = datetime.today().date() - timedelta(days=1)
+
+    print(then)
 
     data = getBoxscore(then)
     for d in data:
