@@ -160,16 +160,11 @@ def renderHtml(data, standalone, date):
     template = env.get_template("mlb.html")
 
     games = sorted(data, key=lambda x: -len(x['tags']))
-    good_games = [x for x in games if len(x['tags']) > 0]
-    boring_games = [x for x in games if len(x['tags']) == 0]
-    seen_tags = []
-    for x in good_games:
-        seen_tags.extend(x['tags'])
 
     with open('.git/refs/heads/main', 'r') as handle:
         git_commit = handle.read().strip()[0:12]
 
-    kw = dict(good=good_games, bad=boring_games, tag_defs=TAG_DEFS,
+    kw = dict(games=games, tag_defs=TAG_DEFS,
                 color=color4tag, git_commit=git_commit,
                 standalone=standalone, date=date)
 

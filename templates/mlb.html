@@ -15,10 +15,8 @@
 A daily digest of what's worth your time<br /><br />
 <b>Go on ball, get outta here ⚾️</b><br />
 
-{% set good_len = good | length %}
-{% if good_len > 0 %}
 <table style="border-spacing: 0px">
-{% for game in good %}
+{% for game in games %}
 <tr style="background-color: {% if loop.index % 2 == 1 %}#fff{% else %}#eee{% endif %}">
 	<td style=" text-align: right; padding: 6px 7px; border-top: 1px solid #d0d7de;">
 		<b>{{ game.away_name }}</b>
@@ -36,26 +34,8 @@ A daily digest of what's worth your time<br /><br />
 </tr>
 {% endfor %}
 </table>
-{% else %}
-Nothing super exciting happened today <br />
-{% endif %}
 
 
-
-{% set bad_len = bad | length %}
-{% if bad_len > 0 %}
-<br/><b>Probably not 😴</b><br />
-<table>
-{% for game in bad %}
-<tr>
-	<td style="text-align: right">{{ game.away_name }}</td>
-	<td>@</td>
-	<td>{{ game.home_name }}</td>
-	<td>({{ game['time'] }})</td>
-</tr>
-{% endfor %}
-</table>
-{% endif %}
 
 <br/><b>What do the tags mean?</b><br />
 <dl>
