@@ -12,7 +12,7 @@ TAG_DEFS = {
     'pitchers-duel': 'Both of the teams scored ≤2 runs.',
     'high-scoring': 'Either the combined run count was over 15, or at least one side was over 9.',
     'big-inning': 'More than 5 runs in a single inning',
-    'comeback': 'After training by ≥4 runs, a team comes back to within 1 run or surpasses.',
+    'comeback': 'After trailing by ≥4 runs, a team comes back to within 1 run or surpasses.',
     'extra-innings': '>9 innings.',
     'extra-extra-innings': '≥13 innings.',
     'flip-flop': 'The lead changes more than 3 times.'
