@@ -1,5 +1,7 @@
 # MLB: What to Watch
 
+> People ask me what I do in winter when there's no baseball. I'll tell you what I do. I stare out the window and wait for spring. -Roger Hornsby
+
 **Spoiler-free tagging of old MLB games to guide you in what's fun to watch**
 
 For folx in the UTC±2 TZ, MLB games are generally inconveniently late, and you often end up watching them the next day. Maybe it's a good day and the Jays are on a winning streak, maybe they're travelling today and you just want to watch A game, ANY game, something fun!
