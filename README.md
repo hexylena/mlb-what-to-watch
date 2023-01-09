@@ -57,6 +57,9 @@ Tag                   | Metric
 `extra-innings`       | >9 innings
 `extra-extra-innings` | ≥13 innings
 
+## Subscribing
+
+Follow us on <a rel="me" href="https://botsin.space/@mlbw2w">Mastodon</a>
 
 ## License
 
