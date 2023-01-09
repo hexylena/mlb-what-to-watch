@@ -24,6 +24,39 @@ TAG_COLORS = {
     in zip(sorted(TAG_DEFS.keys()), itertools.permutations('FCAF', 3))
 }
 
+HASHTAGS = {
+    "ARI": "Diamondbacks",
+    "ATL": "Braves",
+    "BAL": "Orioles",
+    "BOS": "RedSox",
+    "CHC": "Cubs",
+    "CHW": "WhiteSox",
+    "CIN": "Reds",
+    "CLE": "Guardians",
+    "COL": "Rockies",
+    "DET": "Tigers",
+    "HOU": "Astros",
+    "KCR": "Royals",
+    "LAA": "Angels",
+    "LAD": "Dodgers",
+    "MIA": "Marlins",
+    "MIL": "Brewers",
+    "MIN": "Twins",
+    "NYM": "Mets",
+    "NYY": "Yankees",
+    "OAK": "Athletics",
+    "PHI": "Phillies",
+    "PIT": "Pirates",
+    "SDP": "Padres",
+    "SEA": "Mariners",
+    "SFG": "Giants",
+    "STL": "Cardinals",
+    "TBR": "Rays",
+    "TEX": "Rangers",
+    "TOR": "BlueJays",
+    "WSN": "Nationals",
+}
+
 def getBoxscore(then):
     if not os.path.exists('data'):
         os.makedirs('data')
@@ -47,6 +80,8 @@ def getBoxscore(then):
                     "away_abbr": game["away_abbr"],
                     "home_name": game["home_name"],
                     "away_name": game["away_name"],
+                    "home_hashtag": HASHTAGS[game["home_abbr"]],
+                    "away_hashtag": HASHTAGS[game["away_abbr"]],
                     "time": box.time,
                     "box": box.summary,
                 }
@@ -151,6 +186,21 @@ def renderPlain(data):
         out += f"{where} {', '.join(d['tags'])}\n"
     return out
 
+def renderToot(data, standalone, date):
+    from jinja2 import Environment, FileSystemLoader, select_autoescape
+    env = Environment(
+        loader=FileSystemLoader("templates"),
+        autoescape=select_autoescape()
+    )
+    template = env.get_template("mlb.toot")
+
+    games = sorted(data, key=lambda x: -len(x['tags']))
+
+    kw = dict(games=games, tag_defs=TAG_DEFS,
+                standalone=standalone, date=date)
+    return template.render(**kw)
+
+
 def renderHtml(data, standalone, date):
     from jinja2 import Environment, FileSystemLoader, select_autoescape
     env = Environment(
@@ -184,6 +234,11 @@ if __name__ == "__main__":
         help='Return output as HTML that could be sent in an email'
     )
     parser.add_argument(
+        "--toot",
+        action='store_true',
+        help='Send toot.'
+    )
+    parser.add_argument(
         "--sesv2",
         action='store_true',
         help='Return output in sesv2 json'
@@ -213,8 +268,24 @@ if __name__ == "__main__":
         d['tags'] = tags(d['box'])
         del d['box']
 
+        if 'home_hashtag' not in d:
+            d.update({
+                "home_hashtag": HASHTAGS[d["home_abbr"]],
+                "away_hashtag": HASHTAGS[d["away_abbr"]],
+            })
+
     if args.json:
         print(json.dumps(data))
+    elif args.toot:
+        from mastodon import Mastodon
+        server = 'https://botsin.space'
+        token = os.environ['FEDI_ACCESS_TOKEN']
+        mastodon = Mastodon(
+            access_token = token,
+            api_base_url = server
+        )
+        tooter = mastodon.toot(renderToot(data, True, then))
+        print("tooted: ", tooter['uri'])
     elif args.html:
         if args.github_pages:
             with open(f'docs/{then.isoformat()}.html', 'w') as handle:
