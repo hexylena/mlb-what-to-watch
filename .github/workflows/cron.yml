@@ -47,6 +47,12 @@ jobs:
             git push
         continue-on-error: true
 
+      - name: Toot
+        run: |
+            python what2watch.py --toot
+        env:
+          FEDI_ACCESS_TOKEN: ${{ secrets.FEDI_ACCESS_TOKEN }}
+
       - name: Email
         run: |
             aws ses send-email --destination "ToAddresses=${DISTRIBUTION_LIST}" --from helena@galaxians.org --subject 'MLB: What2Watch' --html "$(python what2watch.py --html)"
