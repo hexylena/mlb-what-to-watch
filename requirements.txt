@@ -1,3 +1,4 @@
 Jinja2==3.0.1
-sportsipy==0.6.0
 Mastodon.py==1.8.0
+#sportsipy==0.6.0
+git+https://github.com/roclark/sportsipy.git@1800e6a87f6de06475cda9f236d8ef797d62a2ce
