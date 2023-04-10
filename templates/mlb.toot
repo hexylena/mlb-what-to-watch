@@ -1,0 +1,4 @@
+What to watch for {{ date }}
+{% for game in games %}
+#{{ game.away_hashtag }} @ #{{game.home_hashtag }}{% if game.tags %}: {{ game.tags | join(', ') }}{% endif %}
+{%- endfor %}
