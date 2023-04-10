@@ -59,7 +59,7 @@ Tag                   | Metric
 
 ## Subscribing
 
-Follow us on <a rel="me" href="https://galaxians.garden/@mlbw2w">Mastodon</a>
+Follow us on <a rel="me" href="https://galaxians.garden/mlbw2w">Mastodon</a>
 
 ## License
 
