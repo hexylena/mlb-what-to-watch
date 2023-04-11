@@ -278,7 +278,7 @@ if __name__ == "__main__":
         print(json.dumps(data))
     elif args.toot:
         from mastodon import Mastodon
-        server = 'https://botsin.space'
+        server = 'https://galaxians.garden'
         token = os.environ['FEDI_ACCESS_TOKEN']
         mastodon = Mastodon(
             access_token = token,
